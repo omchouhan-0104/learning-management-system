@@ -1,10 +1,10 @@
-# 🎓 EduLearn LMS — Learning Management System
+#  EduLearn LMS — Learning Management System
 
-A full-featured Learning Management System built with **core Django only** (no DRF, no third-party auth packages). Every major Django topic is covered.
+A full-featured Learning Management System built with core Django
 
 ---
 
-## 📋 Django Topics Covered
+## Django Topics Covered
 
 | Topic | Where Used |
 |---|---|
@@ -59,7 +59,7 @@ A full-featured Learning Management System built with **core Django only** (no D
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
 ```
 lms_project/
@@ -93,7 +93,7 @@ lms_project/
 
 ---
 
-## 👥 User Roles
+##  User Roles
 
 | Role | Access |
 |---|---|
@@ -104,7 +104,7 @@ lms_project/
 
 ---
 
-## 🚀 Setup & Run
+## Setup & Run
 
 ```bash
 # 1. Clone / unzip project
@@ -131,7 +131,7 @@ Open **http://127.0.0.1:8000**
 
 ---
 
-## 🔑 Demo Accounts (password: `admin123`)
+##  Demo Accounts 
 
 | Username | Role | Access |
 |---|---|---|
@@ -145,17 +145,8 @@ Open **http://127.0.0.1:8000**
 
 ---
 
-## 🧪 Run Tests
 
-```bash
-python manage.py test --verbosity=2
-```
-
-33 tests across all apps covering models, views, forms, and permissions.
-
----
-
-## 📦 Key URLs
+##  Key URLs
 
 | URL | Description |
 |---|---|
