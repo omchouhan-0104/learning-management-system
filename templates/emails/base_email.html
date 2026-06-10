@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block subject %}EduLearn LMS{% endblock %}</title>
+  <style>
+    body{margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;color:#1e293b;}
+    .wrapper{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+    .header{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);padding:32px 40px;text-align:center;}
+    .header h1{color:#fff;margin:0;font-size:24px;font-weight:700;letter-spacing:-.5px;}
+    .header p{color:rgba(255,255,255,.8);margin:6px 0 0;font-size:14px;}
+    .body{padding:36px 40px;}
+    .greeting{font-size:18px;font-weight:600;margin-bottom:12px;color:#1e293b;}
+    .text{font-size:15px;line-height:1.7;color:#475569;margin-bottom:16px;}
+    .btn{display:inline-block;background:#4f46e5;color:#fff !important;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:600;font-size:15px;margin:8px 0;}
+    .info-box{background:#f0f4ff;border-left:4px solid #4f46e5;border-radius:8px;padding:16px 20px;margin:20px 0;}
+    .info-box p{margin:4px 0;font-size:14px;color:#374151;}
+    .info-box strong{color:#1e293b;}
+    .invoice-table{width:100%;border-collapse:collapse;margin:20px 0;}
+    .invoice-table th{background:#f8fafc;padding:10px 14px;text-align:left;font-size:13px;color:#64748b;border-bottom:2px solid #e2e8f0;}
+    .invoice-table td{padding:12px 14px;border-bottom:1px solid #f1f5f9;font-size:14px;color:#374151;}
+    .invoice-table .total td{font-weight:700;font-size:15px;color:#1e293b;background:#f0f4ff;border-bottom:none;}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+    .badge-green{background:#dcfce7;color:#166534;}
+    .badge-blue{background:#dbeafe;color:#1e40af;}
+    .divider{border:none;border-top:1px solid #e2e8f0;margin:24px 0;}
+    .footer{background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;}
+    .footer p{margin:4px 0;font-size:12px;color:#94a3b8;}
+    .footer a{color:#4f46e5;text-decoration:none;}
+    .otp-box{text-align:center;background:#f0f4ff;border:2px dashed #4f46e5;border-radius:12px;padding:24px;margin:24px 0;}
+    .otp-code{font-size:36px;font-weight:700;letter-spacing:8px;color:#4f46e5;margin:0;}
+    .warning{background:#fff7ed;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin:16px 0;font-size:13px;color:#92400e;}
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>🎓 EduLearn LMS</h1>
+    <p>{% block header_subtitle %}Learning Management System{% endblock %}</p>
+  </div>
+  <div class="body">
+    {% block body %}{% endblock %}
+  </div>
+  <div class="footer">
+    <p>© {{ year }} EduLearn LMS. All rights reserved.</p>
+    <p>This email was sent to <strong>{{ recipient_email }}</strong></p>
+    <p><a href="{{ site_url }}">Visit our platform</a> · <a href="{{ site_url }}/accounts/profile/">Manage your account</a></p>
+  </div>
+</div>
+</body>
+</html>

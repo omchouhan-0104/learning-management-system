@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard – {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Teacher Dashboard{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
+      <div class="fs-2 fw-bold">{{ total_courses }}</div>
+      <div class="opacity-75 small">Total Courses</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#059669,#047857)">
+      <div class="fs-2 fw-bold">{{ published_courses }}</div>
+      <div class="opacity-75 small">Published</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+      <div class="fs-2 fw-bold">{{ total_students }}</div>
+      <div class="opacity-75 small">Total Students</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#d97706,#b45309)">
+      <div class="fs-2 fw-bold">{{ pending_grading|length }}</div>
+      <div class="opacity-75 small">Pending Grading</div>
+    </div>
+  </div>
+</div>
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">📚 My Courses</h6>
+        <a href="{% url 'courses:create' %}" class="btn btn-sm text-white" style="background:#4f46e5">+ New Course</a>
+      </div>
+      {% for course in courses %}
+      <div class="d-flex align-items-center justify-content-between p-3 rounded mb-2" style="background:#f8fafc">
+        <div>
+          <div class="fw-semibold small">{{ course.title }}</div>
+          <div class="text-muted" style="font-size:11px">
+            {{ course.student_count }} students · {{ course.assignment_count }} assignments · {{ course.quiz_count }} quizzes
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          {% if course.status == 'published' %}<span class="badge bg-success">Live</span>
+          {% elif course.status == 'draft' %}<span class="badge bg-secondary">Draft</span>
+          {% else %}<span class="badge bg-danger">Archived</span>{% endif %}
+          <a href="{% url 'courses:detail' course.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted text-center py-3">No courses yet. <a href="{% url 'courses:create' %}">Create one →</a></p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">📋 Pending Grading</h6>
+      {% for sub in pending_grading %}
+      <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background:#f0fdf4">
+        <div>
+          <div class="small fw-semibold">{{ sub.student.get_full_name|default:sub.student.username }}</div>
+          <div class="text-muted" style="font-size:11px">{{ sub.assignment.title }}</div>
+        </div>
+        <a href="{% url 'assignments:grade' sub.pk %}" class="btn btn-sm btn-success">Grade</a>
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-3">All caught up! 🎉</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

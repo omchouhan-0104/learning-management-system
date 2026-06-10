@@ -1,0 +1,27 @@
+{% extends 'emails/base_email.html' %}
+{% block header_subtitle %}Course Enrollment Confirmed{% endblock %}
+{% block body %}
+<p class="greeting">Hello, {{ user.first_name }} 🎉</p>
+<p class="text">You have successfully enrolled in a course on <strong>EduLearn LMS</strong>!</p>
+
+<div class="info-box">
+  <p><strong>📚 Course:</strong> {{ course.title }}</p>
+  <p><strong>👨‍🏫 Instructor:</strong> {{ course.teacher.get_full_name }}</p>
+  <p><strong>📊 Level:</strong> {{ course.get_level_display }}</p>
+  <p><strong>⏱ Duration:</strong> {{ course.duration_weeks }} weeks</p>
+  <p><strong>📅 Enrolled On:</strong> {{ enrolled_on }}</p>
+  {% if course.is_free %}
+  <p><strong>💰 Price:</strong> <span class="badge badge-green">FREE</span></p>
+  {% else %}
+  <p><strong>💰 Price:</strong> ₹{{ course.price }}</p>
+  {% endif %}
+</div>
+
+<p class="text">You now have full access to all course materials including notes, assignments, and quizzes.</p>
+
+<div style="text-align:center;margin:28px 0;">
+  <a href="{{ site_url }}/courses/{{ course.slug }}/" class="btn">Start Learning →</a>
+</div>
+
+<p class="text">Best of luck with your studies! 📖<br><strong>— The EduLearn Team</strong></p>
+{% endblock %}

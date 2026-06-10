@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block page_title %}Grade Submission{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4 mb-4" style="background:#f0fdf4">
+      <h6 class="fw-bold">📋 Submission Info</h6>
+      <p class="mb-1 small"><strong>Student:</strong> {{ submission.student.get_full_name|default:submission.student.username }}</p>
+      <p class="mb-1 small"><strong>Assignment:</strong> {{ submission.assignment.title }}</p>
+      <p class="mb-1 small"><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+      {% if submission.remarks %}<p class="mb-1 small"><strong>Student Remarks:</strong> {{ submission.remarks }}</p>{% endif %}
+      {% if submission.file %}<a href="{{ submission.file.url }}" class="btn btn-sm btn-outline-primary mt-2">⬇ Download Submission</a>{% endif %}
+    </div>
+    <div class="card p-4">
+      <h5 class="fw-bold mb-4">✅ Grade This Submission</h5>
+      <p class="text-muted small">Total Marks: <strong>{{ submission.assignment.total_marks }}</strong></p>
+      <form method="post">{% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">{{ field.label }}</label>{{ field }}
+          {% if field.errors %}<div class="text-danger" style="font-size:12px">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn text-white" style="background:#4f46e5">Save Grade</button>
+        <a href="{% url 'assignments:submissions' submission.assignment.pk %}" class="btn btn-outline-secondary ms-2">Back</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

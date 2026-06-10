@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard – {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
+      <div class="fs-2 fw-bold">{{ stats.total_users }}</div>
+      <div class="opacity-75 small">Total Users</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#059669,#047857)">
+      <div class="fs-2 fw-bold">{{ stats.total_students }}</div>
+      <div class="opacity-75 small">Students</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+      <div class="fs-2 fw-bold">{{ stats.total_teachers }}</div>
+      <div class="opacity-75 small">Teachers</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#d97706,#b45309)">
+      <div class="fs-2 fw-bold">{{ stats.total_courses }}</div>
+      <div class="opacity-75 small">Total Courses</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#16a34a,#15803d)">
+      <div class="fs-2 fw-bold">{{ stats.published_courses }}</div>
+      <div class="opacity-75 small">Published Courses</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">
+      <div class="fs-2 fw-bold">{{ stats.total_enrollments }}</div>
+      <div class="opacity-75 small">Enrollments</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+      <div class="fs-2 fw-bold">{{ stats.total_submissions }}</div>
+      <div class="opacity-75 small">Submissions</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+      <div class="fs-2 fw-bold">{{ stats.total_quiz_attempts }}</div>
+      <div class="opacity-75 small">Quiz Attempts</div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <div class="card p-3">
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-sm text-white" style="background:#4f46e5">👥 Manage Users</a>
+        <a href="{% url 'courses:list' %}" class="btn btn-sm btn-outline-primary">📚 All Courses</a>
+        <a href="{% url 'courses:create' %}" class="btn btn-sm btn-outline-success">➕ Create Course</a>
+        <a href="/admin/" class="btn btn-sm btn-outline-danger">⚙️ Django Admin</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Users & Courses -->
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">👥 Recent Users</h6>
+        <a href="{% url 'accounts:user_list' %}" class="small text-decoration-none" style="color:#4f46e5">View all →</a>
+      </div>
+      {% for u in recent_users %}
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+          <img src="https://ui-avatars.com/api/?name={{ u.get_full_name|urlencode }}&background=6366f1&color=fff&size=32"
+               class="rounded-circle me-2" width="32" height="32">
+          <div>
+            <div class="small fw-semibold">{{ u.get_full_name|default:u.username }}</div>
+            <div class="text-muted" style="font-size:11px">{{ u.email }}</div>
+          </div>
+        </div>
+        <span class="badge badge-{{ u.role }} badge-role">{{ u.get_role_display }}</span>
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-3">No users yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">📚 Recent Courses</h6>
+        <a href="{% url 'courses:list' %}" class="small text-decoration-none" style="color:#4f46e5">View all →</a>
+      </div>
+      {% for course in recent_courses %}
+      <div class="d-flex align-items-center justify-content-between mb-3 p-2 rounded" style="background:#f8fafc">
+        <div>
+          <div class="small fw-semibold">{{ course.title }}</div>
+          <div class="text-muted" style="font-size:11px">
+            by {{ course.teacher.get_full_name|default:course.teacher.username }}
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          {% if course.status == 'published' %}
+            <span class="badge bg-success">Live</span>
+          {% elif course.status == 'draft' %}
+            <span class="badge bg-secondary">Draft</span>
+          {% else %}
+            <span class="badge bg-danger">Archived</span>
+          {% endif %}
+          <a href="{% url 'courses:detail' course.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-3">No courses yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

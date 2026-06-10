@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block page_title %}Submissions{% endblock %}
+{% block content %}
+<div class="card p-4">
+  <h5 class="fw-bold mb-1">Submissions: {{ assignment.title }}</h5>
+  <p class="text-muted small mb-4">Course: {{ assignment.course.title }} · Total Marks: {{ assignment.total_marks }}</p>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light"><tr>
+        <th>Student</th><th>Submitted</th><th>Status</th><th>Score</th><th>Action</th>
+      </tr></thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr>
+          <td>
+            <div class="fw-semibold small">{{ sub.student.get_full_name|default:sub.student.username }}</div>
+            <div class="text-muted" style="font-size:11px">{{ sub.student.email }}</div>
+          </td>
+          <td class="text-muted small">{{ sub.submitted_at|date:"M d, Y H:i" }}</td>
+          <td>{% if sub.is_graded %}<span class="badge bg-success">Graded</span>{% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}</td>
+          <td>{% if sub.is_graded %}<strong>{{ sub.marks_obtained }}/{{ assignment.total_marks }}</strong> ({{ sub.percentage }}%){% else %}<span class="text-muted">—</span>{% endif %}</td>
+          <td>
+            {% if sub.file %}<a href="{{ sub.file.url }}" class="btn btn-sm btn-outline-secondary me-1">⬇</a>{% endif %}
+            {% if not sub.is_graded %}<a href="{% url 'assignments:grade' sub.pk %}" class="btn btn-sm btn-success">Grade</a>{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No submissions yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

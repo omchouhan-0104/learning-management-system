@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard – {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
+      <div class="fs-2 fw-bold">{{ total_enrolled }}</div>
+      <div class="opacity-75 small">Enrolled Courses</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+      <div class="fs-2 fw-bold">{{ quiz_stats.total|default:0 }}</div>
+      <div class="opacity-75 small">Quizzes Attempted</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#059669,#047857)">
+      <div class="fs-2 fw-bold">{{ quiz_stats.passed|default:0 }}</div>
+      <div class="opacity-75 small">Quizzes Passed</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 stat-card" style="background:linear-gradient(135deg,#d97706,#b45309)">
+      <div class="fs-2 fw-bold">{{ pending_assignments|length }}</div>
+      <div class="opacity-75 small">Pending Assignments</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">📚 My Courses</h6>
+      {% for enrollment in enrollments %}
+      <div class="d-flex align-items-center p-3 rounded mb-2" style="background:#f8fafc">
+        <div class="me-3" style="font-size:28px">📘</div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold small">{{ enrollment.course.title }}</div>
+          <div class="text-muted" style="font-size:11px">by {{ enrollment.course.teacher.get_full_name|default:enrollment.course.teacher.username }}</div>
+          <div class="progress mt-1" style="height:4px">
+            <div class="progress-bar" style="width:{{ enrollment.progress }}%;background:#4f46e5"></div>
+          </div>
+        </div>
+        <a href="{% url 'courses:detail' enrollment.course.slug %}" class="btn btn-sm btn-outline-primary ms-2">Open</a>
+      </div>
+      {% empty %}
+      <p class="text-muted text-center py-3">Not enrolled in any course yet. <a href="{% url 'courses:list' %}">Browse courses →</a></p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="card p-4 mb-4">
+      <h6 class="fw-bold mb-3">⏰ Pending Assignments</h6>
+      {% for assignment in pending_assignments %}
+      <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background:#fff7ed">
+        <div>
+          <div class="small fw-semibold">{{ assignment.title }}</div>
+          <div class="text-muted" style="font-size:11px">Due: {{ assignment.due_date|date:"M d, H:i" }}</div>
+        </div>
+        <a href="{% url 'assignments:submit' assignment.pk %}" class="btn btn-sm btn-warning">Submit</a>
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-2">No pending assignments 🎉</p>
+      {% endfor %}
+    </div>
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">📝 Recent Submissions</h6>
+      {% for sub in recent_submissions %}
+      <div class="d-flex justify-content-between mb-2">
+        <div>
+          <div class="small fw-semibold">{{ sub.assignment.title }}</div>
+          <div class="text-muted" style="font-size:11px">{{ sub.submitted_at|date:"M d" }}</div>
+        </div>
+        {% if sub.is_graded %}
+        <span class="badge bg-success">{{ sub.marks_obtained }}/{{ sub.assignment.total_marks }}</span>
+        {% else %}
+        <span class="badge bg-warning text-dark">Pending</span>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-2">No submissions yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <!-- Left: Quiz info -->
+  <div class="col-md-8">
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h4 class="fw-bold mb-1">🧠 {{ quiz.title }}</h4>
+          {% if quiz.description %}<p class="text-muted mb-0">{{ quiz.description }}</p>{% endif %}
+        </div>
+        {% if is_teacher %}
+        <div class="d-flex gap-2">
+          <a href="{% url 'quizzes:manage_questions' quiz.pk %}" class="btn btn-sm text-white" style="background:#4f46e5">
+            ⚙ Manage Questions
+          </a>
+          <a href="{% url 'quizzes:edit' quiz.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+          <a href="{% url 'quizzes:delete' quiz.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="row g-3">
+        <div class="col-3 text-center p-3 rounded" style="background:#f0f4ff">
+          <div class="fw-bold fs-5" style="color:#4f46e5">{{ quiz.question_count }}</div>
+          <div class="text-muted small">Questions</div>
+        </div>
+        <div class="col-3 text-center p-3 rounded" style="background:#f0fdf4">
+          <div class="fw-bold fs-5 text-success">{{ quiz.time_limit_minutes }}m</div>
+          <div class="text-muted small">Time Limit</div>
+        </div>
+        <div class="col-3 text-center p-3 rounded" style="background:#fff7ed">
+          <div class="fw-bold fs-5 text-warning">{{ quiz.passing_score }}%</div>
+          <div class="text-muted small">Pass Score</div>
+        </div>
+        <div class="col-3 text-center p-3 rounded" style="background:#fdf4ff">
+          <div class="fw-bold fs-5" style="color:#7c3aed">
+            {% for q in questions %}{{ q.marks }}{% if not forloop.last %}+{% endif %}{% endfor %}
+          </div>
+          <div class="text-muted small">Total Marks</div>
+        </div>
+      </div>
+
+      {% if quiz.question_count == 0 and is_teacher %}
+      <div class="alert alert-warning mt-3 py-2 small">
+        ⚠ This quiz has no questions yet.
+        <a href="{% url 'quizzes:add_question' quiz_pk=quiz.pk %}" class="alert-link">Add questions now →</a>
+      </div>
+      {% endif %}
+
+      <div class="mt-4">
+        {% if user.is_student %}
+          {% if quiz.question_count == 0 %}
+            <span class="btn btn-secondary disabled">Quiz not ready yet</span>
+          {% elif has_attempted %}
+            <a href="{% url 'quizzes:result' quiz.pk %}" class="btn btn-outline-success fw-bold">
+              📊 View My Result ({{ user_attempt.percentage }}%)
+            </a>
+          {% else %}
+            <a href="{% url 'quizzes:take' quiz.pk %}" class="btn text-white fw-bold px-5" style="background:#4f46e5">
+              🚀 Start Quiz
+            </a>
+          {% endif %}
+        {% endif %}
+        <a href="{% url 'courses:detail' quiz.course.slug %}" class="btn btn-outline-secondary ms-2">← Course</a>
+      </div>
+    </div>
+
+    <!-- Questions preview (teacher only) -->
+    {% if is_teacher and questions %}
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">📋 Questions Preview</h6>
+      {% for question in questions %}
+      <div class="p-3 rounded mb-3" style="background:#f8fafc;border-left:3px solid #4f46e5">
+        <div class="d-flex align-items-start gap-2 mb-2">
+          <span class="badge text-white" style="background:#4f46e5;min-width:24px">{{ question.order }}</span>
+          <span class="fw-semibold small">{{ question.text }}</span>
+          <span class="ms-auto badge bg-light text-muted">{{ question.marks }}mk</span>
+        </div>
+        {% for opt in question.options.all %}
+        <div class="ms-4 small d-flex align-items-center gap-2 mb-1">
+          <span class="badge {% if opt.is_correct %}bg-success{% else %}bg-light text-muted{% endif %}"
+                style="width:16px;height:16px;border-radius:50%;padding:0;font-size:9px;display:inline-flex;align-items:center;justify-content:center">
+            {% if opt.is_correct %}✓{% else %}○{% endif %}
+          </span>
+          <span class="{% if opt.is_correct %}text-success fw-semibold{% else %}text-muted{% endif %}">{{ opt.text }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: Stats / My result -->
+  <div class="col-md-4">
+    {% if is_teacher and stats %}
+    <div class="card p-4 mb-3">
+      <h6 class="fw-bold mb-3">📊 Statistics</h6>
+      <div class="mb-2 d-flex justify-content-between">
+        <span class="text-muted small">Total Attempts</span>
+        <strong>{{ stats.total_attempts }}</strong>
+      </div>
+      <div class="mb-2 d-flex justify-content-between">
+        <span class="text-muted small">Average Score</span>
+        <strong>{{ stats.avg_score|floatformat:1|default:"—" }}%</strong>
+      </div>
+      <div class="mb-2 d-flex justify-content-between">
+        <span class="text-muted small">Highest Score</span>
+        <strong class="text-success">{{ stats.max_score|floatformat:1|default:"—" }}%</strong>
+      </div>
+      <div class="d-flex justify-content-between">
+        <span class="text-muted small">Lowest Score</span>
+        <strong class="text-danger">{{ stats.min_score|floatformat:1|default:"—" }}%</strong>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if user.is_student and user_attempt %}
+    <div class="card p-4" style="background:{% if user_attempt.passed %}linear-gradient(135deg,#059669,#047857){% else %}linear-gradient(135deg,#dc2626,#b91c1c){% endif %};color:#fff">
+      <h6 class="fw-bold mb-3">My Last Attempt</h6>
+      <div class="fs-2 fw-bold">{{ user_attempt.percentage }}%</div>
+      <div class="opacity-75 small">{{ user_attempt.score }}/{{ user_attempt.total_marks }} marks</div>
+      <div class="mt-2">
+        {% if user_attempt.passed %}
+          <span class="badge bg-white text-success fw-bold">✅ PASSED</span>
+        {% else %}
+          <span class="badge bg-white text-danger fw-bold">❌ FAILED</span>
+        {% endif %}
+      </div>
+      <a href="{% url 'quizzes:result' quiz.pk %}" class="btn btn-light btn-sm mt-3 w-100">
+        View Full Review
+      </a>
+    </div>
+    {% endif %}
+
+    <div class="card p-3 mt-3" style="background:#f8fafc">
+      <p class="small text-muted mb-1"><strong>Course:</strong> {{ quiz.course.title }}</p>
+      <p class="small text-muted mb-1"><strong>Teacher:</strong> {{ quiz.course.teacher.get_full_name }}</p>
+      <p class="small text-muted mb-0">
+        <strong>Status:</strong>
+        {% if quiz.is_active %}<span class="text-success">Active</span>{% else %}<span class="text-danger">Inactive</span>{% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

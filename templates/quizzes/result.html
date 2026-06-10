@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block page_title %}Quiz Result{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9">
+
+    <!-- Result card -->
+    <div class="card p-5 text-center mb-4" style="background:{% if attempt.passed %}linear-gradient(135deg,#059669,#047857){% else %}linear-gradient(135deg,#dc2626,#b91c1c){% endif %};color:#fff">
+      <div style="font-size:64px">{% if attempt.passed %}🎉{% else %}😔{% endif %}</div>
+      <h3 class="fw-bold mt-2">{% if attempt.passed %}Congratulations!{% else %}Better luck next time!{% endif %}</h3>
+      <div class="fs-1 fw-bold mt-1">{{ attempt.percentage }}%</div>
+      <p class="opacity-75 mb-2">{{ attempt.score }} / {{ attempt.total_marks }} marks scored</p>
+      {% if attempt.passed %}
+      <span class="badge bg-white fw-bold" style="color:#059669;font-size:14px">✅ PASSED</span>
+      {% else %}
+      <span class="badge bg-white fw-bold" style="color:#dc2626;font-size:14px">
+        ❌ FAILED — Need {{ quiz.passing_score }}% to pass
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- Score breakdown -->
+    <div class="row g-3 mb-4">
+      <div class="col-3">
+        <div class="card p-3 text-center">
+          <div class="fw-bold fs-4" style="color:#4f46e5">{{ answers|length }}</div>
+          <div class="text-muted small">Questions</div>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="card p-3 text-center">
+          <div class="fw-bold fs-4 text-success">{% for a in answers %}{% if a.is_correct %}1{% endif %}{% endfor %}</div>
+          <div class="text-muted small">Correct</div>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="card p-3 text-center">
+          <div class="fw-bold fs-4 text-danger">{% for a in answers %}{% if not a.is_correct %}1{% endif %}{% endfor %}</div>
+          <div class="text-muted small">Wrong / Skipped</div>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="card p-3 text-center">
+          <div class="fw-bold fs-4 text-warning">{{ quiz.passing_score }}%</div>
+          <div class="text-muted small">Pass Mark</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed review -->
+    <div class="card p-4">
+      <h6 class="fw-bold mb-4">📋 Detailed Answer Review</h6>
+
+      {% for answer in answers %}
+      <div class="p-3 rounded mb-3"
+           style="border-left:4px solid {% if answer.is_correct %}#059669{% else %}#dc2626{% endif %};
+                  background:{% if answer.is_correct %}#f0fdf4{% else %}#fff5f5{% endif %}">
+
+        <div class="d-flex align-items-start gap-2 mb-2">
+          <span class="badge {% if answer.is_correct %}bg-success{% else %}bg-danger{% endif %} flex-shrink-0">
+            {% if answer.is_correct %}✓{% else %}✗{% endif %}
+          </span>
+          <p class="fw-semibold mb-0 small">{{ answer.question.text }}</p>
+          <span class="ms-auto badge bg-light text-muted flex-shrink-0">{{ answer.question.marks }} mk</span>
+        </div>
+
+        <div class="ms-4">
+          <!-- Show all options with correct/wrong indication -->
+          {% for opt in answer.question.options.all %}
+          <div class="d-flex align-items-center gap-2 mb-1 p-2 rounded"
+               style="background:{% if opt.is_correct %}#dcfce7{% elif opt == answer.selected_option %}#fee2e2{% else %}transparent{% endif %}">
+            <span style="font-size:12px">
+              {% if opt.is_correct %}✅
+              {% elif opt == answer.selected_option and not opt.is_correct %}❌
+              {% else %}○{% endif %}
+            </span>
+            <span class="small {% if opt.is_correct %}fw-semibold text-success{% elif opt == answer.selected_option and not opt.is_correct %}text-danger{% else %}text-muted{% endif %}">
+              {{ opt.text }}
+            </span>
+            {% if opt.is_correct %}<span class="badge bg-success ms-auto" style="font-size:10px">Correct Answer</span>{% endif %}
+            {% if opt == answer.selected_option and not opt.is_correct %}<span class="badge bg-danger ms-auto" style="font-size:10px">Your Answer</span>{% endif %}
+          </div>
+          {% endfor %}
+
+          {% if not answer.selected_option %}
+          <p class="text-warning small mt-1">⚠ You did not answer this question.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+      <a href="{% url 'courses:detail' quiz.course.slug %}" class="btn btn-outline-primary">← Back to Course</a>
+      <a href="{% url 'courses:student_courses' %}" class="btn btn-outline-secondary">My Courses</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

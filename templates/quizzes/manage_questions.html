@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block page_title %}Manage Questions – {{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h5 class="fw-bold mb-0">🧠 {{ quiz.title }}</h5>
+    <p class="text-muted small mb-0">{{ quiz.course.title }} · {{ question_count }} question{{ question_count|pluralize }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'quizzes:add_question' quiz_pk=quiz.pk %}" class="btn text-white fw-semibold" style="background:#4f46e5">
+      ➕ Add Question
+    </a>
+    <a href="{% url 'quizzes:edit' quiz.pk %}" class="btn btn-outline-secondary">⚙ Edit Quiz</a>
+    <a href="{% url 'quizzes:detail' quiz.pk %}" class="btn btn-outline-primary">👁 Preview</a>
+  </div>
+</div>
+
+{% if not questions %}
+<div class="card p-5 text-center" style="border:2px dashed #e2e8f0">
+  <div style="font-size:56px">❓</div>
+  <h5 class="text-muted mt-3">No questions yet</h5>
+  <p class="text-muted small">Add your first question to make this quiz available to students.</p>
+  <a href="{% url 'quizzes:add_question' quiz_pk=quiz.pk %}" class="btn text-white px-4 mt-1" style="background:#4f46e5">
+    ➕ Add First Question
+  </a>
+</div>
+{% else %}
+
+<!-- Quiz summary bar -->
+<div class="card p-3 mb-4" style="background:#f0f4ff">
+  <div class="row g-3 text-center">
+    <div class="col-3">
+      <div class="fw-bold" style="color:#4f46e5">{{ question_count }}</div>
+      <div class="text-muted small">Questions</div>
+    </div>
+    <div class="col-3">
+      <div class="fw-bold text-success">{{ quiz.time_limit_minutes }} min</div>
+      <div class="text-muted small">Time Limit</div>
+    </div>
+    <div class="col-3">
+      <div class="fw-bold text-warning">{{ quiz.passing_score }}%</div>
+      <div class="text-muted small">Pass Score</div>
+    </div>
+    <div class="col-3">
+      {% if quiz.is_active %}
+        <div class="fw-bold text-success">Active</div>
+      {% else %}
+        <div class="fw-bold text-danger">Inactive</div>
+      {% endif %}
+      <div class="text-muted small">Status</div>
+    </div>
+  </div>
+</div>
+
+<!-- Questions list -->
+{% for question in questions %}
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <div class="d-flex align-items-start gap-3">
+        <span class="badge text-white rounded-circle d-flex align-items-center justify-content-center"
+              style="background:#4f46e5;width:28px;height:28px;min-width:28px;font-size:13px">
+          {{ question.order }}
+        </span>
+        <div>
+          <p class="fw-semibold mb-1">{{ question.text }}</p>
+          <div class="d-flex gap-2">
+            <span class="badge bg-light text-muted">{{ question.get_question_type_display }}</span>
+            <span class="badge bg-light text-muted">{{ question.marks }} mark{{ question.marks|pluralize }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'quizzes:edit_question' question.pk %}" class="btn btn-sm btn-outline-primary">✏ Edit</a>
+        <form method="post" action="{% url 'quizzes:delete_question' question.pk %}"
+              onsubmit="return confirm('Delete this question?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Delete</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="ms-5 mt-2">
+      {% for option in question.options.all %}
+      <div class="d-flex align-items-center gap-2 mb-1 p-2 rounded"
+           style="background:{% if option.is_correct %}#f0fdf4{% else %}#f8fafc{% endif %}">
+        <span class="badge {% if option.is_correct %}bg-success{% else %}bg-light text-muted{% endif %}"
+              style="width:22px;height:22px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center">
+          {% if option.is_correct %}✓{% else %}○{% endif %}
+        </span>
+        <span class="small {% if option.is_correct %}fw-semibold text-success{% else %}text-muted{% endif %}">
+          {{ option.text }}
+        </span>
+        {% if option.is_correct %}
+        <span class="badge bg-success ms-auto" style="font-size:10px">Correct Answer</span>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p class="text-danger small">⚠ No options added — <a href="{% url 'quizzes:edit_question' question.pk %}">Add options</a></p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<div class="mt-3 d-flex justify-content-between align-items-center">
+  <a href="{% url 'quizzes:add_question' quiz_pk=quiz.pk %}" class="btn text-white" style="background:#4f46e5">
+    ➕ Add Another Question
+  </a>
+  <a href="{% url 'courses:detail' quiz.course.slug %}" class="btn btn-outline-secondary">
+    ← Back to Course
+  </a>
+</div>
+{% endif %}
+{% endblock %}
