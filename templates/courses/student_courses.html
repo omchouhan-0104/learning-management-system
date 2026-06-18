@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block page_title %}My Enrollments{% endblock %}
+{% block content %}
+<h5 class="fw-bold mb-4">My Enrolled Courses ({{ enrollments|length }})</h5>
+<div class="row g-4">
+  {% for enrollment in enrollments %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="d-flex align-items-center justify-content-center" style="height:100px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:12px 12px 0 0">
+        <span style="font-size:36px">📘</span>
+      </div>
+      <div class="card-body">
+        <h6 class="fw-bold mb-1">{{ enrollment.course.title }}</h6>
+        <p class="text-muted small mb-2">by {{ enrollment.course.teacher.get_full_name|default:enrollment.course.teacher.username }}</p>
+        <div class="mb-2">
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Progress</span><span>{{ enrollment.progress }}%</span>
+          </div>
+          <div class="progress" style="height:6px">
+            <div class="progress-bar" role="progressbar" style="width:{{ enrollment.progress }}%;background:#4f46e5"></div>
+          </div>
+        </div>
+        <div class="text-muted" style="font-size:11px">Enrolled: {{ enrollment.enrolled_at|date:"M d, Y" }}</div>
+        {% if enrollment.completed %}<span class="badge bg-success mt-1">✅ Completed</span>{% endif %}
+        <a href="{% url 'courses:detail' enrollment.course.slug %}" class="btn btn-sm text-white w-100 mt-2" style="background:#4f46e5">Continue Learning</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <div style="font-size:64px">📖</div>
+    <h5 class="text-muted mt-3">Not enrolled in any courses</h5>
+    <a href="{% url 'courses:list' %}" class="btn text-white mt-2" style="background:#4f46e5">Browse Courses</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

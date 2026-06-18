@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }} – {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Course Detail{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-8">
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <span class="badge bg-light text-dark me-1">{{ course.get_level_display }}</span>
+          {% if course.status == 'published' %}<span class="badge bg-success">Published</span>
+          {% else %}<span class="badge bg-secondary">{{ course.status|title }}</span>{% endif %}
+        </div>
+        {% if user == course.teacher or user.is_staff %}
+        <div class="d-flex gap-2">
+          <a href="{% url 'courses:edit' course.slug %}" class="btn btn-sm btn-outline-primary">✏ Edit</a>
+          <a href="{% url 'courses:delete' course.slug %}" class="btn btn-sm btn-outline-danger">🗑 Delete</a>
+        </div>
+        {% endif %}
+      </div>
+      <h3 class="fw-bold mb-2">{{ course.title }}</h3>
+      <p class="text-muted">{{ course.description }}</p>
+      <div class="row g-3 mt-2">
+        <div class="col-4 text-center p-3 rounded" style="background:#f0f4ff">
+          <div class="fw-bold" style="color:#4f46e5">{{ enrollment_count }}</div>
+          <div class="text-muted small">Students</div>
+        </div>
+        <div class="col-4 text-center p-3 rounded" style="background:#f0fdf4">
+          <div class="fw-bold text-success">{{ course.duration_weeks }} wks</div>
+          <div class="text-muted small">Duration</div>
+        </div>
+        <div class="col-4 text-center p-3 rounded" style="background:#fff7ed">
+          <div class="fw-bold text-warning">{{ course.views }}</div>
+          <div class="text-muted small">Views</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">📄 Course Notes</h6>
+        {% if user == course.teacher or user.is_staff %}
+        <a href="{% url 'courses:upload_note' course.slug %}" class="btn btn-sm text-white" style="background:#4f46e5">+ Upload Note</a>
+        {% endif %}
+      </div>
+      {% for note in notes %}
+      <div class="d-flex align-items-center justify-content-between p-3 rounded mb-2" style="background:#f8fafc">
+        <div class="d-flex align-items-center">
+          <span class="me-3" style="font-size:24px">📎</span>
+          <div>
+            <div class="fw-semibold small">{{ note.title }}</div>
+            <div class="text-muted" style="font-size:11px">{{ note.file_extension }} · {{ note.created_at|date:"M d, Y" }}</div>
+          </div>
+        </div>
+        {% if is_enrolled or user == course.teacher or user.is_staff %}
+        <a href="{% url 'courses:download_note' note.pk %}" class="btn btn-sm btn-outline-primary">⬇ Download</a>
+        {% else %}
+        <span class="text-muted small">Enroll to access</span>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-3">No notes uploaded yet.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">📝 Assignments</h6>
+        {% if user == course.teacher or user.is_staff %}
+        <a href="{% url 'assignments:create' course.slug %}" class="btn btn-sm text-white" style="background:#4f46e5">+ Add Assignment</a>
+        {% endif %}
+      </div>
+      {% for assignment in course.assignments.all %}
+      <div class="d-flex align-items-center justify-content-between p-3 rounded mb-2" style="background:#f8fafc">
+        <div>
+          <div class="fw-semibold small">{{ assignment.title }}</div>
+          <div class="text-muted" style="font-size:11px">Due: {{ assignment.due_date|date:"M d, Y H:i" }} · {{ assignment.total_marks }} marks</div>
+        </div>
+        {% if is_enrolled %}
+        <a href="{% url 'assignments:submit' assignment.pk %}" class="btn btn-sm btn-outline-warning">Submit</a>
+        {% elif user == course.teacher or user.is_staff %}
+        <a href="{% url 'assignments:submissions' assignment.pk %}" class="btn btn-sm btn-outline-primary">Submissions</a>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-3">No assignments yet.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">🧠 Quizzes</h6>
+        {% if user == course.teacher or user.is_staff %}
+        <a href="{% url 'quizzes:create' course.slug %}" class="btn btn-sm text-white" style="background:#4f46e5">+ Add Quiz</a>
+        {% endif %}
+      </div>
+      {% for quiz in course.quizzes.all %}
+      <div class="d-flex align-items-center justify-content-between p-3 rounded mb-2" style="background:#f8fafc">
+        <div>
+          <div class="fw-semibold small">{{ quiz.title }}</div>
+          <div class="text-muted" style="font-size:11px">{{ quiz.question_count }} questions · {{ quiz.time_limit_minutes }} min</div>
+        </div>
+        <a href="{% url 'quizzes:detail' quiz.pk %}" class="btn btn-sm btn-outline-primary">
+          {% if is_enrolled %}Take Quiz{% else %}View{% endif %}
+        </a>
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-3">No quizzes yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card p-4 mb-4" style="position:sticky;top:70px">
+      <div class="text-center mb-3">
+        {% if course.is_free %}
+        <div class="fs-3 fw-bold text-success">FREE</div>
+        {% else %}
+        <div class="fs-3 fw-bold" style="color:#4f46e5">₹{{ course.price }}</div>
+        {% endif %}
+      </div>
+      {% if user.is_student %}
+        {% if is_enrolled %}
+        <div class="alert alert-success py-2 text-center small mb-3">✅ You are enrolled</div>
+        <form method="post" action="{% url 'courses:unenroll' course.slug %}">{% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger w-100 btn-sm">Unenroll</button>
+        </form>
+        {% else %}
+        <form method="post" action="{% url 'courses:enroll' course.slug %}">{% csrf_token %}
+          <button type="submit" class="btn text-white w-100 fw-bold" style="background:#4f46e5">Enroll Now</button>
+        </form>
+        {% endif %}
+      {% elif not user.is_authenticated %}
+      <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn text-white w-100 fw-bold" style="background:#4f46e5">Login to Enroll</a>
+      {% endif %}
+      <hr>
+      <div class="mb-2"><span class="text-muted small">Instructor:</span><br>
+        <span class="fw-semibold small">{{ course.teacher.get_full_name|default:course.teacher.username }}</span>
+      </div>
+      <div class="mb-2"><span class="text-muted small">Level:</span> <span class="small">{{ course.get_level_display }}</span></div>
+      <div class="mb-2"><span class="text-muted small">Duration:</span> <span class="small">{{ course.duration_weeks }} weeks</span></div>
+      <div class="mb-2"><span class="text-muted small">Max Students:</span> <span class="small">{{ course.max_students }}</span></div>
+      {% if course.category %}
+      <div><span class="text-muted small">Category:</span> <span class="small">{{ course.category.name }}</span></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

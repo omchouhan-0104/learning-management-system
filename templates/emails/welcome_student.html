@@ -1,0 +1,25 @@
+{% extends 'emails/base_email.html' %}
+{% block header_subtitle %}Welcome to EduLearn!{% endblock %}
+{% block body %}
+<p class="greeting">Hello, {{ user.first_name }} 👋</p>
+<p class="text">Welcome to <strong>EduLearn LMS</strong>! Your student account has been created successfully. We're excited to have you on board.</p>
+
+<div class="info-box">
+  <p><strong>👤 Name:</strong> {{ user.get_full_name }}</p>
+  <p><strong>📧 Email:</strong> {{ user.email }}</p>
+  <p><strong>🎓 Role:</strong> Student</p>
+  <p><strong>🔑 Username:</strong> {{ user.username }}</p>
+</div>
+
+<p class="text">You can now browse and enroll in courses, submit assignments, take quizzes, and track your learning progress.</p>
+
+<div style="text-align:center;margin:28px 0;">
+  <a href="{{ site_url }}/dashboard/" class="btn">Go to My Dashboard →</a>
+</div>
+
+<div class="warning">
+  ⚠️ Please keep your login credentials safe. If you did not create this account, contact us immediately.
+</div>
+
+<p class="text">Happy learning! 🚀<br><strong>— The EduLearn Team</strong></p>
+{% endblock %}

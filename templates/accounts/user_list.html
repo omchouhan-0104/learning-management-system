@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block page_title %}Manage Users{% endblock %}
+{% block content %}
+<div class="card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0">All Users <span class="badge bg-secondary ms-1">{{ page_obj.paginator.count }}</span></h5>
+    <div class="d-flex gap-2">
+      <span class="badge bg-success">Students: {{ total_students }}</span>
+      <span class="badge bg-primary">Teachers: {{ total_teachers }}</span>
+    </div>
+  </div>
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-md-5"><input name="search" value="{{ search }}" class="form-control" placeholder="🔍 Search name, email, username..."></div>
+    <div class="col-md-3">
+      <select name="role" class="form-control">
+        <option value="">All Roles</option>
+        <option value="student" {% if role_filter == "student" %}selected{% endif %}>Students</option>
+        <option value="teacher" {% if role_filter == "teacher" %}selected{% endif %}>Teachers</option>
+        <option value="admin" {% if role_filter == "admin" %}selected{% endif %}>Admins</option>
+      </select>
+    </div>
+    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+    <div class="col-md-2"><a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary w-100">Clear</a></div>
+  </form>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light"><tr>
+        <th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="https://ui-avatars.com/api/?name={{ u.get_full_name|urlencode }}&background=6366f1&color=fff&size=32"
+                   class="rounded-circle me-2" width="32" height="32">
+              <div>
+                <div class="fw-semibold small">{{ u.get_full_name|default:u.username }}</div>
+                <div class="text-muted" style="font-size:11px">@{{ u.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="text-muted small">{{ u.email }}</td>
+          <td><span class="badge badge-{{ u.role }} badge-role">{{ u.get_role_display }}</span></td>
+          <td>{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+          <td class="text-muted small">{{ u.created_at|date:"M d, Y" }}</td>
+          <td>
+            <a href="{% url 'accounts:user_edit' u.pk %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+            <a href="{% url 'accounts:toggle_status' u.pk %}" class="btn btn-sm btn-outline-{% if u.is_active %}danger{% else %}success{% endif %}">
+              {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.has_other_pages %}
+  <nav><ul class="pagination justify-content-center mt-3 mb-0">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&role={{ role_filter }}">‹</a></li>{% endif %}
+    {% for n in page_obj.paginator.page_range %}
+    <li class="page-item {% if page_obj.number == n %}active{% endif %}"><a class="page-link" href="?page={{ n }}&search={{ search }}&role={{ role_filter }}">{{ n }}</a></li>
+    {% endfor %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}&role={{ role_filter }}">›</a></li>{% endif %}
+  </ul></nav>
+  {% endif %}
+</div>
+{% endblock %}

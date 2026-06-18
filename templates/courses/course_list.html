@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Courses – {{ SITE_NAME }}{% endblock %}
+{% block page_title %}Browse Courses{% endblock %}
+{% block content %}
+<div class="card p-4 mb-4">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-4"><input name="search" value="{{ search }}" class="form-control" placeholder="🔍 Search courses..."></div>
+    <div class="col-md-2">
+      <select name="category" class="form-control">
+        <option value="">All Categories</option>
+        {% for cat in categories %}<option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="level" class="form-control">
+        <option value="">All Levels</option>
+        <option value="beginner" {% if selected_level == 'beginner' %}selected{% endif %}>Beginner</option>
+        <option value="intermediate" {% if selected_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+        <option value="advanced" {% if selected_level == 'advanced' %}selected{% endif %}>Advanced</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="is_free" class="form-control">
+        <option value="">Free & Paid</option>
+        <option value="true">Free Only</option>
+        <option value="false">Paid Only</option>
+      </select>
+    </div>
+    <div class="col-md-1"><button type="submit" class="btn btn-primary w-100">Go</button></div>
+    <div class="col-md-1"><a href="{% url 'courses:list' %}" class="btn btn-outline-secondary w-100">✕</a></div>
+  </form>
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted mb-0 small">{{ total_courses }} course{{ total_courses|pluralize }} found</p>
+  {% if user.is_teacher or user.is_staff %}
+  <a href="{% url 'courses:create' %}" class="btn btn-sm text-white" style="background:#4f46e5">+ Create Course</a>
+  {% endif %}
+</div>
+<div class="row g-4">
+  {% for course in courses %}
+  <div class="col-md-4">
+    <div class="card h-100" style="border-radius:12px;transition:transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+      <div class="d-flex align-items-center justify-content-center" style="height:140px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:12px 12px 0 0">
+        <span style="font-size:48px">📚</span>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge bg-light text-dark small">{{ course.get_level_display }}</span>
+          {% if course.is_free %}<span class="badge bg-success">Free</span>
+          {% else %}<span class="badge bg-warning text-dark">₹{{ course.price }}</span>{% endif %}
+        </div>
+        <h6 class="fw-bold mb-1">{{ course.title }}</h6>
+        <p class="text-muted small mb-2">{{ course.description|truncatechars:80 }}</p>
+        <div class="text-muted small mb-3">
+          👤 {{ course.teacher.get_full_name|default:course.teacher.username }} &nbsp;|&nbsp;
+          👥 {{ course.student_count }} students
+        </div>
+        <a href="{% url 'courses:detail' course.slug %}" class="btn btn-sm text-white w-100" style="background:#4f46e5">View Course</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <div style="font-size:64px">🔍</div>
+    <h5 class="text-muted mt-3">No courses found</h5>
+    <a href="{% url 'courses:list' %}" class="btn btn-outline-primary mt-2">Clear filters</a>
+  </div>
+  {% endfor %}
+</div>
+{% if page_obj.has_other_pages %}
+<nav class="mt-4"><ul class="pagination justify-content-center">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&category={{ selected_category }}&level={{ selected_level }}">‹</a></li>{% endif %}
+  {% for n in page_obj.paginator.page_range %}
+  <li class="page-item {% if page_obj.number == n %}active{% endif %}"><a class="page-link" href="?page={{ n }}&search={{ search }}&category={{ selected_category }}&level={{ selected_level }}">{{ n }}</a></li>
+  {% endfor %}
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}&category={{ selected_category }}&level={{ selected_level }}">›</a></li>{% endif %}
+</ul></nav>
+{% endif %}
+{% endblock %}

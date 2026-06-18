@@ -1,0 +1,28 @@
+{% extends 'emails/base_email.html' %}
+{% block header_subtitle %}Teacher Account Created{% endblock %}
+{% block body %}
+<p class="greeting">Hello, {{ user.first_name }} 👨‍🏫</p>
+<p class="text">Your teacher account on <strong>EduLearn LMS</strong> has been created. You now have access to create and manage courses for your students.</p>
+
+<div class="info-box">
+  <p><strong>👤 Name:</strong> {{ user.get_full_name }}</p>
+  <p><strong>📧 Email:</strong> {{ user.email }}</p>
+  <p><strong>🎓 Role:</strong> Teacher</p>
+  <p><strong>🔑 Username:</strong> {{ user.username }}</p>
+</div>
+
+<p class="text">As a teacher, you can:</p>
+<ul style="font-size:14px;color:#475569;line-height:2;">
+  <li>✅ Create and publish courses</li>
+  <li>✅ Upload notes and study materials</li>
+  <li>✅ Create assignments and grade submissions</li>
+  <li>✅ Build quizzes and view results</li>
+  <li>✅ Track enrolled students</li>
+</ul>
+
+<div style="text-align:center;margin:28px 0;">
+  <a href="{{ site_url }}/dashboard/" class="btn">Go to Teacher Dashboard →</a>
+</div>
+
+<p class="text">Welcome aboard! 🎉<br><strong>— The EduLearn Team</strong></p>
+{% endblock %}

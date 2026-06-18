@@ -1,0 +1,26 @@
+{% extends 'emails/base_email.html' %}
+{% block header_subtitle %}Assignment Graded{% endblock %}
+{% block body %}
+<p class="greeting">Hello, {{ user.first_name }} 📝</p>
+<p class="text">Your assignment has been graded by your instructor on <strong>EduLearn LMS</strong>.</p>
+
+<div class="info-box">
+  <p><strong>📚 Course:</strong> {{ submission.assignment.course.title }}</p>
+  <p><strong>📋 Assignment:</strong> {{ submission.assignment.title }}</p>
+  <p><strong>🏆 Marks Obtained:</strong> {{ submission.marks_obtained }} / {{ submission.assignment.total_marks }}</p>
+  <p><strong>📊 Percentage:</strong> {{ submission.percentage }}%</p>
+</div>
+
+{% if submission.teacher_feedback %}
+<div class="info-box" style="background:#f0fdf4;border-color:#059669;">
+  <p style="font-size:12px;color:#059669;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Teacher's Feedback</p>
+  <p style="color:#374151;">{{ submission.teacher_feedback }}</p>
+</div>
+{% endif %}
+
+<div style="text-align:center;margin:28px 0;">
+  <a href="{{ site_url }}/dashboard/" class="btn">View My Dashboard →</a>
+</div>
+
+<p class="text">Keep up the great work! 💪<br><strong>— The EduLearn Team</strong></p>
+{% endblock %}

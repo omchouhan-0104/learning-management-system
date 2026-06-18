@@ -1,0 +1,20 @@
+{% extends 'emails/base_email.html' %}
+{% block header_subtitle %}New User Registered{% endblock %}
+{% block body %}
+<p class="greeting">Admin Notification 🔔</p>
+<p class="text">A new user has registered on <strong>EduLearn LMS</strong>.</p>
+
+<div class="info-box">
+  <p><strong>👤 Name:</strong> {{ new_user.get_full_name }}</p>
+  <p><strong>📧 Email:</strong> {{ new_user.email }}</p>
+  <p><strong>🔑 Username:</strong> {{ new_user.username }}</p>
+  <p><strong>🎓 Role:</strong> {{ new_user.get_role_display }}</p>
+  <p><strong>📅 Registered:</strong> {{ new_user.created_at|date:"N j, Y, g:i a" }}</p>
+</div>
+
+<div style="text-align:center;margin:28px 0;">
+  <a href="{{ site_url }}/accounts/users/{{ new_user.pk }}/" class="btn">View User Profile →</a>
+</div>
+
+<p class="text">— EduLearn LMS Notifications</p>
+{% endblock %}

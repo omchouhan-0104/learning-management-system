@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block page_title %}Taking: {{ quiz.title }}{% endblock %}
+{% block extra_css %}
+<style>
+  .option-label{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;border:2px solid #e2e8f0;cursor:pointer;transition:all .2s;margin-bottom:8px;}
+  .option-label:hover{border-color:#4f46e5;background:#f0f4ff;}
+  input[type="radio"]:checked + .option-label, .option-label.selected{border-color:#4f46e5;background:#f0f4ff;}
+  input[type="radio"]{display:none;}
+  .q-card{border-left:4px solid #e2e8f0;}
+  .q-card.answered{border-left-color:#4f46e5;}
+  .timer-danger{color:#dc2626 !important;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .progress-q{height:6px;border-radius:3px;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9">
+
+    <!-- Header bar -->
+    <div class="card p-3 mb-4 d-flex flex-row align-items-center justify-content-between">
+      <div>
+        <h6 class="fw-bold mb-0">🧠 {{ quiz.title }}</h6>
+        <span class="text-muted small">{{ questions|length }} questions · Pass: {{ quiz.passing_score }}%</span>
+      </div>
+      <div class="text-center">
+        <div id="timer" class="fw-bold fs-4" style="color:#4f46e5;font-variant-numeric:tabular-nums">
+          {{ quiz.time_limit_minutes }}:00
+        </div>
+        <div class="text-muted" style="font-size:11px">Time Left</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between small text-muted mb-1">
+        <span id="answered-count">0 answered</span>
+        <span>{{ questions|length }} total</span>
+      </div>
+      <div class="progress progress-q">
+        <div id="progress-bar" class="progress-bar" style="width:0%;background:#4f46e5;transition:width .3s"></div>
+      </div>
+    </div>
+
+    <form method="post" id="quizForm">
+      {% csrf_token %}
+
+      {% for question in questions %}
+      <div class="card mb-4 q-card" id="qcard-{{ forloop.counter0 }}">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <span class="badge text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style="background:#4f46e5;width:30px;height:30px;font-size:13px">
+              {{ forloop.counter }}
+            </span>
+            <p class="fw-semibold mb-0" style="font-size:15px">{{ question.text }}</p>
+            <span class="ms-auto badge bg-light text-muted flex-shrink-0">{{ question.marks }} mk</span>
+          </div>
+
+          <div class="ms-5">
+            {% for option in question.options.all %}
+            <div>
+              <input type="radio"
+                     name="question_{{ question.pk }}"
+                     id="opt_{{ option.pk }}"
+                     value="{{ option.pk }}"
+                     onchange="onAnswer({{ forloop.parentloop.counter0 }})">
+              <label class="option-label" for="opt_{{ option.pk }}">
+                <span class="badge bg-light text-muted fw-bold" style="min-width:24px">
+                  {{ forloop.counter }}
+                </span>
+                {{ option.text }}
+              </label>
+            </div>
+            {% empty %}
+            <p class="text-danger small">⚠ No options for this question.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+        <span class="text-muted small" id="submit-note">Answer all questions before submitting.</span>
+        <button type="submit" class="btn text-white fw-bold px-5" style="background:#4f46e5" id="submitBtn">
+          Submit Quiz ✓
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const TOTAL_Q = {{ questions|length }};
+let answered = new Set();
+let totalSecs = {{ quiz.time_limit_minutes }} * 60;
+const timerEl = document.getElementById('timer');
+const progressBar = document.getElementById('progress-bar');
+const answeredCount = document.getElementById('answered-count');
+
+function onAnswer(idx) {
+  answered.add(idx);
+  document.getElementById('qcard-' + idx).classList.add('answered');
+  const pct = Math.round((answered.size / TOTAL_Q) * 100);
+  progressBar.style.width = pct + '%';
+  answeredCount.textContent = answered.size + ' answered';
+  if (answered.size === TOTAL_Q) {
+    document.getElementById('submit-note').textContent = '✅ All questions answered!';
+    document.getElementById('submit-note').style.color = '#059669';
+  }
+}
+
+// Reflect already-selected on page load (browser back)
+document.querySelectorAll('input[type="radio"]:checked').forEach(r => {
+  const idx = parseInt(r.closest('.q-card').id.replace('qcard-',''));
+  onAnswer(idx);
+});
+
+// Timer
+const ticker = setInterval(() => {
+  totalSecs--;
+  const m = String(Math.floor(totalSecs / 60)).padStart(2, '0');
+  const s = String(totalSecs % 60).padStart(2, '0');
+  timerEl.textContent = m + ':' + s;
+  if (totalSecs <= 60) timerEl.classList.add('timer-danger');
+  if (totalSecs <= 0) { clearInterval(ticker); document.getElementById('quizForm').submit(); }
+}, 1000);
+
+// Warn before leaving
+window.addEventListener('beforeunload', e => { e.preventDefault(); e.returnValue = ''; });
+document.getElementById('quizForm').addEventListener('submit', () => {
+  window.removeEventListener('beforeunload', () => {});
+  clearInterval(ticker);
+});
+</script>
+{% endblock %}

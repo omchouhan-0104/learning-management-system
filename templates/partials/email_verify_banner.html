@@ -1,0 +1,7 @@
+{% if user.is_authenticated and not user.is_email_verified %}
+<div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 py-2 text-center" style="font-size:13px" role="alert">
+  📧 <strong>Verify your email!</strong> Check your inbox at <strong>{{ user.email }}</strong> for a confirmation link.
+  <a href="{% url 'accounts:resend_verification' %}" class="alert-link ms-2">Resend verification email →</a>
+  <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}

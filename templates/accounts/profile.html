@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Profile – {{ SITE_NAME }}{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card p-4 text-center">
+      <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|urlencode }}&background=6366f1&color=fff&size=100"
+           class="rounded-circle mx-auto mb-3" width="90" height="90">
+      <h5 class="mb-1 fw-bold">{{ user.get_full_name|default:user.username }}</h5>
+      <span class="badge badge-{{ user.role }} badge-role mb-2">{{ user.get_role_display }}</span>
+      <p class="text-muted small mb-1">{{ user.email }}</p>
+      <p class="text-muted small mb-3">Joined {{ user.created_at|date:"M d, Y" }}</p>
+      <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary btn-sm">🔒 Change Password</a>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card p-4">
+      <h5 class="fw-bold mb-4">Edit Profile</h5>
+      <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        <div class="row g-3">
+          {% for field in form %}
+          <div class="col-{% if field.name == 'bio' %}12{% else %}6{% endif %}">
+            <label class="form-label fw-semibold small">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger" style="font-size:12px">{{ field.errors.0 }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn text-white mt-4" style="background:#4f46e5">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

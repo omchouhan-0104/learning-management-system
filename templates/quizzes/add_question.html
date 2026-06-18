@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block page_title %}Add Question{% endblock %}
+{% block extra_css %}
+<style>
+  .option-row{background:#f8fafc;border-radius:8px;padding:12px 16px;margin-bottom:8px;border:1px solid #e2e8f0;}
+  .option-row.correct-marked{background:#f0fdf4;border-color:#86efac;}
+  .correct-toggle{cursor:pointer;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-3" style="font-size:13px">
+      <a href="{% url 'courses:detail' quiz.course.slug %}" class="text-decoration-none text-muted">{{ quiz.course.title }}</a>
+      <span class="text-muted mx-1">›</span>
+      <a href="{% url 'quizzes:manage_questions' quiz.pk %}" class="text-decoration-none text-muted">{{ quiz.title }}</a>
+      <span class="text-muted mx-1">›</span>
+      <span style="color:#4f46e5">Add Question</span>
+    </nav>
+
+    <div class="card p-4">
+      <h5 class="fw-bold mb-1">➕ Add Question</h5>
+      <p class="text-muted small mb-4">Quiz: <strong>{{ quiz.title }}</strong></p>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Question fields -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Question Text *</label>
+          {{ question_form.text }}
+          {% if question_form.text.errors %}<div class="text-danger small">{{ question_form.text.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-4">
+            <label class="form-label fw-semibold small">Question Type</label>
+            {{ question_form.question_type }}
+          </div>
+          <div class="col-4">
+            <label class="form-label fw-semibold small">Marks</label>
+            {{ question_form.marks }}
+          </div>
+          <div class="col-4">
+            <label class="form-label fw-semibold small">Order</label>
+            {{ question_form.order }}
+          </div>
+        </div>
+
+        <!-- Options / Answers -->
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Answer Options *</label>
+          <p class="text-muted small">Fill in each option. Check the box next to the <strong>correct answer(s)</strong>.</p>
+        </div>
+
+        {{ option_formset.management_form }}
+
+        <div id="options-container">
+          {% for opt_form in option_formset %}
+          <div class="option-row d-flex align-items-center gap-3" id="opt-row-{{ forloop.counter0 }}">
+            <div style="font-size:18px;color:#94a3b8">{{ forloop.counter }}</div>
+            <div class="flex-grow-1">
+              {{ opt_form.text }}
+              {% if opt_form.text.errors %}<div class="text-danger small">{{ opt_form.text.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="d-flex align-items-center gap-1 correct-toggle" title="Mark as correct answer">
+              {{ opt_form.is_correct }}
+              <label class="form-check-label small fw-semibold" style="cursor:pointer;color:#059669">Correct</label>
+            </div>
+            {% if opt_form.DELETE %}
+            <div class="d-none">{{ opt_form.DELETE }}</div>
+            {% endif %}
+            {{ opt_form.id }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="alert alert-info py-2 mt-3 small">
+          💡 <strong>Tip:</strong> Fill at least 2 options and mark one as correct. Leave unused option fields empty.
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn text-white fw-bold px-4" style="background:#4f46e5">Save Question</button>
+          <a href="{% url 'quizzes:manage_questions' quiz.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  // Highlight row when "correct" is checked
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const row = this.closest('.option-row');
+      if (row) row.classList.toggle('correct-marked', this.checked);
+    });
+    // Init state
+    if (cb.checked) {
+      const row = cb.closest('.option-row');
+      if (row) row.classList.add('correct-marked');
+    }
+  });
+</script>
+{% endblock %}
