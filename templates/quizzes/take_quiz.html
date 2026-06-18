@@ -16,8 +16,6 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-9">
-
-    <!-- Header bar -->
     <div class="card p-3 mb-4 d-flex flex-row align-items-center justify-content-between">
       <div>
         <h6 class="fw-bold mb-0">🧠 {{ quiz.title }}</h6>
@@ -30,8 +28,6 @@
         <div class="text-muted" style="font-size:11px">Time Left</div>
       </div>
     </div>
-
-    <!-- Progress -->
     <div class="mb-3">
       <div class="d-flex justify-content-between small text-muted mb-1">
         <span id="answered-count">0 answered</span>
@@ -44,7 +40,6 @@
 
     <form method="post" id="quizForm">
       {% csrf_token %}
-
       {% for question in questions %}
       <div class="card mb-4 q-card" id="qcard-{{ forloop.counter0 }}">
         <div class="card-body">
@@ -111,14 +106,11 @@ function onAnswer(idx) {
     document.getElementById('submit-note').style.color = '#059669';
   }
 }
-
-// Reflect already-selected on page load (browser back)
 document.querySelectorAll('input[type="radio"]:checked').forEach(r => {
   const idx = parseInt(r.closest('.q-card').id.replace('qcard-',''));
   onAnswer(idx);
 });
 
-// Timer
 const ticker = setInterval(() => {
   totalSecs--;
   const m = String(Math.floor(totalSecs / 60)).padStart(2, '0');
@@ -127,8 +119,6 @@ const ticker = setInterval(() => {
   if (totalSecs <= 60) timerEl.classList.add('timer-danger');
   if (totalSecs <= 0) { clearInterval(ticker); document.getElementById('quizForm').submit(); }
 }, 1000);
-
-// Warn before leaving
 window.addEventListener('beforeunload', e => { e.preventDefault(); e.returnValue = ''; });
 document.getElementById('quizForm').addEventListener('submit', () => {
   window.removeEventListener('beforeunload', () => {});

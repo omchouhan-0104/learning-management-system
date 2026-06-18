@@ -1,7 +1,3 @@
-"""
-Accounts Tests
-Topics: Django TestCase, Client, test views, forms, models
-"""
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -10,7 +6,6 @@ User = get_user_model()
 
 
 class UserModelTest(TestCase):
-    """Test Custom User Model"""
 
     def setUp(self):
         self.student = User.objects.create_user(
@@ -53,7 +48,6 @@ class UserModelTest(TestCase):
 
 
 class AuthViewTest(TestCase):
-    """Test Login, Register, Logout views"""
 
     def setUp(self):
         self.client = Client()

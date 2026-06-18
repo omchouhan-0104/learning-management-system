@@ -1,16 +1,10 @@
-"""
-Dashboard Views
-Topics: Role-based views, LoginRequiredMixin, Aggregation, Annotation, ORM
-"""
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Avg, Sum, Q
 from django.utils import timezone
 
-
 @login_required
 def index(request):
-    """Main dashboard - redirects to role-specific dashboard"""
     user = request.user
     if user.is_superuser or user.role == 'super_admin':
         return redirect('dashboard:super_admin')
@@ -21,13 +15,8 @@ def index(request):
     else:
         return redirect('dashboard:student')
 
-
 @login_required
 def student_dashboard(request):
-    """
-    Student Dashboard
-    Topics: ORM filter(), select_related, Aggregation, Annotation
-    """
     if not (request.user.is_student or request.user.role == 'student'):
         return redirect('dashboard:index')
 
@@ -37,9 +26,8 @@ def student_dashboard(request):
 
     enrollments = Enrollment.objects.filter(
         student=request.user, is_active=True
-    ).select_related('course', 'course__teacher')  # Topic: select_related
+    ).select_related('course', 'course__teacher')
 
-    # Topic: Aggregation
     quiz_stats = QuizAttempt.objects.filter(student=request.user).aggregate(
         total=Count('id'),
         avg_score=Avg('percentage'),
@@ -70,13 +58,8 @@ def student_dashboard(request):
     }
     return render(request, 'dashboard/student.html', context)
 
-
 @login_required
 def teacher_dashboard(request):
-    """
-    Teacher Dashboard
-    Topics: Annotation, Aggregation, prefetch_related
-    """
     if not (request.user.is_teacher or request.user.is_staff):
         return redirect('dashboard:index')
 
@@ -89,7 +72,6 @@ def teacher_dashboard(request):
         quiz_count=Count('quizzes', distinct=True),
     )
 
-    # Topic: Aggregation across related models
     total_students = Enrollment.objects.filter(
         course__teacher=request.user, is_active=True
     ).values('student').distinct().count()
@@ -108,10 +90,8 @@ def teacher_dashboard(request):
     }
     return render(request, 'dashboard/teacher.html', context)
 
-
 @login_required
 def admin_dashboard(request):
-    """Admin Dashboard - Topics: Aggregation, Count, ORM"""
     if not (request.user.is_staff or request.user.is_superuser):
         return redirect('dashboard:index')
 
@@ -120,7 +100,6 @@ def admin_dashboard(request):
     from assignments.models import AssignmentSubmission
     from quizzes.models import QuizAttempt
 
-    # Topic: Multiple Aggregations
     stats = {
         'total_users': User.objects.count(),
         'total_students': User.objects.filter(role='student').count(),
@@ -145,7 +124,6 @@ def admin_dashboard(request):
 
 @login_required
 def super_admin_dashboard(request):
-    """Super Admin Dashboard"""
     if not (request.user.is_superuser or request.user.role == 'super_admin'):
         return redirect('dashboard:index')
     return admin_dashboard(request)

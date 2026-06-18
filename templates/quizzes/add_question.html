@@ -10,8 +10,6 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-8">
-
-    <!-- Breadcrumb -->
     <nav class="mb-3" style="font-size:13px">
       <a href="{% url 'courses:detail' quiz.course.slug %}" class="text-decoration-none text-muted">{{ quiz.course.title }}</a>
       <span class="text-muted mx-1">›</span>
@@ -26,8 +24,6 @@
 
       <form method="post">
         {% csrf_token %}
-
-        <!-- Question fields -->
         <div class="mb-3">
           <label class="form-label fw-semibold">Question Text *</label>
           {{ question_form.text }}
@@ -49,7 +45,6 @@
           </div>
         </div>
 
-        <!-- Options / Answers -->
         <div class="mb-2">
           <label class="form-label fw-semibold">Answer Options *</label>
           <p class="text-muted small">Fill in each option. Check the box next to the <strong>correct answer(s)</strong>.</p>
@@ -92,13 +87,11 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-  // Highlight row when "correct" is checked
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
     cb.addEventListener('change', function() {
       const row = this.closest('.option-row');
       if (row) row.classList.toggle('correct-marked', this.checked);
     });
-    // Init state
     if (cb.checked) {
       const row = cb.closest('.option-row');
       if (row) row.classList.add('correct-marked');

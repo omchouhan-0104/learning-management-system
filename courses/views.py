@@ -1,6 +1,3 @@
-"""
-Courses Views — includes enrollment emails and invoice emails
-"""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -9,10 +6,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy, reverse
 from django.http import FileResponse, Http404
 from django.db.models import Q, F, Count, Avg
-
 from .models import Course, Enrollment, Note, Category
 from .forms import CourseForm, NoteForm
-
 
 class CourseListView(ListView):
     model = Course
@@ -84,7 +79,6 @@ class CourseDetailView(DetailView):
         context['enrollment_count'] = course.enrollments.filter(is_active=True).count()
         return context
 
-
 class CourseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Course
     form_class = CourseForm
@@ -100,7 +94,6 @@ class CourseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def get_success_url(self):
         return reverse('courses:detail', kwargs={'slug': self.object.slug})
-
 
 class CourseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Course
@@ -135,20 +128,13 @@ class CourseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 @login_required
 def enroll_course(request, slug):
-    """
-    Enroll student — sends enrollment confirmation email.
-    If course is paid → sends invoice email instead.
-    """
-    course = get_object_or_404(Course, slug=slug, status='published')
-
+ course = get_object_or_404(Course, slug=slug, status='published')
     if not request.user.is_student:
         messages.error(request, 'Only students can enroll.')
         return redirect('courses:detail', slug=slug)
-
     if course.is_full:
         messages.warning(request, 'This course is full.')
         return redirect('courses:detail', slug=slug)
-
     enrollment, created = Enrollment.objects.get_or_create(
         student=request.user,
         course=course,
@@ -156,7 +142,6 @@ def enroll_course(request, slug):
     )
 
     if created:
-        # ── Send emails ────────────────────────────────────────────────
         try:
             from lms_project.email_service import (
                 send_enrollment_confirmation_email,
@@ -180,7 +165,6 @@ def enroll_course(request, slug):
 
     return redirect('courses:detail', slug=slug)
 
-
 @login_required
 def unenroll_course(request, slug):
     course = get_object_or_404(Course, slug=slug)
@@ -188,7 +172,6 @@ def unenroll_course(request, slug):
         Enrollment.objects.filter(student=request.user, course=course).update(is_active=False)
         messages.success(request, f'Unenrolled from "{course.title}".')
     return redirect('courses:detail', slug=slug)
-
 
 @login_required
 def upload_note(request, course_slug):
@@ -207,7 +190,6 @@ def upload_note(request, course_slug):
             messages.success(request, 'Note uploaded successfully!')
             return redirect('courses:detail', slug=course_slug)
     return render(request, 'courses/upload_note.html', {'form': form, 'course': course})
-
 
 @login_required
 def download_note(request, note_id):

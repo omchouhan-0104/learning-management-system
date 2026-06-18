@@ -1,6 +1,3 @@
-"""
-Assignment Views — sends graded notification email
-"""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -8,11 +5,9 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.utils import timezone
-
 from courses.models import Course, Enrollment
 from .models import Assignment, AssignmentSubmission
 from .forms import AssignmentForm, SubmissionForm, GradeForm
-
 
 class AssignmentCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Assignment
@@ -36,7 +31,6 @@ class AssignmentCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         return context
-
 
 @login_required
 def submit_assignment(request, assignment_id):
@@ -62,7 +56,6 @@ def submit_assignment(request, assignment_id):
             return redirect('courses:detail', slug=assignment.course.slug)
     return render(request, 'assignments/submit.html', {'form': form, 'assignment': assignment})
 
-
 @login_required
 def grade_submission(request, submission_id):
     """Grade submission and send email notification to student."""
@@ -80,17 +73,15 @@ def grade_submission(request, submission_id):
             sub.graded_at = timezone.now()
             sub.save()
 
-            # ── Send graded notification email ─────────────────────────
             try:
                 from lms_project.email_service import send_assignment_graded_email
                 send_assignment_graded_email(sub)
             except Exception:
-                pass  # Don't block grading if email fails
+                pass
 
             messages.success(request, f'✅ Graded! Notification sent to {sub.student.email}')
             return redirect('assignments:submissions', assignment_id=submission.assignment.pk)
     return render(request, 'assignments/grade.html', {'form': form, 'submission': submission})
-
 
 @login_required
 def assignment_submissions(request, assignment_id):

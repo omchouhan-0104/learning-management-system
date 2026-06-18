@@ -1,11 +1,9 @@
-"""Courses Tests - Topics: TestCase, ORM queries, views, permissions"""
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from .models import Course, Category, Enrollment
 
 User = get_user_model()
-
 
 class CourseModelTest(TestCase):
     def setUp(self):
@@ -35,7 +33,6 @@ class CourseModelTest(TestCase):
 
     def test_is_full_false(self):
         self.assertFalse(self.course.is_full)
-
 
 class CourseViewTest(TestCase):
     def setUp(self):

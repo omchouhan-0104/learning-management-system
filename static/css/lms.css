@@ -1,27 +1,14 @@
-/* LMS Custom Styles */
 :root {
   --primary: #4f46e5;
   --primary-dark: #4338ca;
   --sidebar-bg: #1e1b4b;
 }
-
-/* Smooth transitions */
 .card { transition: box-shadow .2s; }
 .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-
-/* Form controls */
 .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 .2rem rgba(79,70,229,.2); }
-
-/* Tables */
 .table th { font-weight: 600; font-size: 13px; color: #64748b; }
 .table td { font-size: 14px; vertical-align: middle; }
-
-/* Badges */
 .badge-role { letter-spacing: .3px; }
-
-/* Progress bars */
 .progress { background: #e2e8f0; }
-
-/* Animations */
 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 .page-area { animation: fadeIn .3s ease; }

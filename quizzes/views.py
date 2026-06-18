@@ -1,6 +1,3 @@
-"""
-Quizzes Views — fully working quiz CRUD + question management
-"""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -15,14 +12,9 @@ from courses.models import Course, Enrollment
 from .models import Quiz, Question, Option, QuizAttempt, StudentAnswer
 from .forms import QuizForm, QuestionForm, OptionFormSet
 
-
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
 def _is_teacher_of_quiz(user, quiz):
     return user == quiz.course.teacher or user.is_staff
 
-
-# ─── Quiz CRUD ────────────────────────────────────────────────────────────────
 
 class QuizCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Quiz
@@ -88,15 +80,8 @@ class QuizDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# ─── Question Management ──────────────────────────────────────────────────────
-
 @login_required
 def manage_questions(request, pk):
-    """
-    The main question builder page.
-    Shows all existing questions + an 'Add Question' button.
-    Teachers use this to build out the entire quiz.
-    """
     quiz = get_object_or_404(Quiz, pk=pk)
     if not _is_teacher_of_quiz(request.user, quiz):
         messages.error(request, 'Permission denied.')
@@ -112,10 +97,6 @@ def manage_questions(request, pk):
 
 @login_required
 def add_question(request, quiz_pk):
-    """
-    Add a new question with its options (using inline formset).
-    Renders a form with the question fields + 4 option rows.
-    """
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     if not _is_teacher_of_quiz(request.user, quiz):
         messages.error(request, 'Permission denied.')
@@ -150,7 +131,6 @@ def add_question(request, quiz_pk):
                     messages.error(request, 'Please add at least one option.')
                     return redirect('quizzes:add_question', quiz_pk=quiz_pk)
 
-                # Validate: at least one correct answer
                 if not question.options.filter(is_correct=True).exists():
                     messages.warning(request, f'Question saved but has no correct answer marked. Edit it to fix.')
                 else:
@@ -158,12 +138,11 @@ def add_question(request, quiz_pk):
 
                 return redirect('quizzes:manage_questions', pk=quiz_pk)
             else:
-                question.delete()  # rollback question if options invalid
+                question.delete()
                 messages.error(request, 'Please fix option errors.')
         else:
             option_formset = OptionFormSet(request.POST)
     else:
-        # Pre-fill order
         last = quiz.questions.order_by('-order').first()
         next_order = (last.order + 1) if last else 1
         question_form = QuestionForm(initial={'order': next_order, 'marks': 1})
@@ -178,7 +157,6 @@ def add_question(request, quiz_pk):
 
 @login_required
 def edit_question(request, question_pk):
-    """Edit an existing question and its options."""
     question = get_object_or_404(Question, pk=question_pk)
     quiz = question.quiz
     if not _is_teacher_of_quiz(request.user, quiz):
@@ -213,7 +191,6 @@ def edit_question(request, question_pk):
 
 @login_required
 def delete_question(request, question_pk):
-    """Delete a question and all its options."""
     question = get_object_or_404(Question, pk=question_pk)
     quiz = question.quiz
     if not _is_teacher_of_quiz(request.user, quiz):
@@ -224,8 +201,6 @@ def delete_question(request, question_pk):
         messages.success(request, 'Question deleted.')
     return redirect('quizzes:manage_questions', pk=quiz.pk)
 
-
-# ─── Quiz Detail (teacher + student view) ────────────────────────────────────
 
 @login_required
 def quiz_detail(request, pk):
@@ -256,8 +231,6 @@ def quiz_detail(request, pk):
         'is_teacher': _is_teacher_of_quiz(request.user, quiz),
     })
 
-
-# ─── Take Quiz ────────────────────────────────────────────────────────────────
 
 @login_required
 def take_quiz(request, pk):
@@ -323,9 +296,6 @@ def take_quiz(request, pk):
         'quiz': quiz,
         'questions': questions,
     })
-
-
-# ─── Quiz Result ──────────────────────────────────────────────────────────────
 
 @login_required
 def quiz_result(request, pk):

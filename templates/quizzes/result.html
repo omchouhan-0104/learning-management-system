@@ -3,8 +3,6 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-9">
-
-    <!-- Result card -->
     <div class="card p-5 text-center mb-4" style="background:{% if attempt.passed %}linear-gradient(135deg,#059669,#047857){% else %}linear-gradient(135deg,#dc2626,#b91c1c){% endif %};color:#fff">
       <div style="font-size:64px">{% if attempt.passed %}🎉{% else %}😔{% endif %}</div>
       <h3 class="fw-bold mt-2">{% if attempt.passed %}Congratulations!{% else %}Better luck next time!{% endif %}</h3>
@@ -18,8 +16,6 @@
       </span>
       {% endif %}
     </div>
-
-    <!-- Score breakdown -->
     <div class="row g-3 mb-4">
       <div class="col-3">
         <div class="card p-3 text-center">
@@ -46,11 +42,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Detailed review -->
     <div class="card p-4">
       <h6 class="fw-bold mb-4">📋 Detailed Answer Review</h6>
-
       {% for answer in answers %}
       <div class="p-3 rounded mb-3"
            style="border-left:4px solid {% if answer.is_correct %}#059669{% else %}#dc2626{% endif %};
@@ -65,7 +58,6 @@
         </div>
 
         <div class="ms-4">
-          <!-- Show all options with correct/wrong indication -->
           {% for opt in answer.question.options.all %}
           <div class="d-flex align-items-center gap-2 mb-1 p-2 rounded"
                style="background:{% if opt.is_correct %}#dcfce7{% elif opt == answer.selected_option %}#fee2e2{% else %}transparent{% endif %}">

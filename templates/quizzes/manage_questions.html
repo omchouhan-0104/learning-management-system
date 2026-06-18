@@ -26,7 +26,6 @@
 </div>
 {% else %}
 
-<!-- Quiz summary bar -->
 <div class="card p-3 mb-4" style="background:#f0f4ff">
   <div class="row g-3 text-center">
     <div class="col-3">
@@ -52,7 +51,6 @@
   </div>
 </div>
 
-<!-- Questions list -->
 {% for question in questions %}
 <div class="card mb-3">
   <div class="card-body">
@@ -80,7 +78,6 @@
       </div>
     </div>
 
-    <!-- Options -->
     <div class="ms-5 mt-2">
       {% for option in question.options.all %}
       <div class="d-flex align-items-center gap-2 mb-1 p-2 rounded"

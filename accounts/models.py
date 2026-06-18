@@ -1,12 +1,7 @@
-"""
-Accounts Models
-Topics: AbstractUser, Custom User Model, AUTH_USER_MODEL, Custom Manager
-"""
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
 import uuid
-
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -93,10 +88,6 @@ class User(AbstractUser):
 
 
 class EmailConfirmationToken(models.Model):
-    """
-    Stores email verification tokens.
-    Used by: send_confirm_email() + verify_email view
-    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_token')
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -104,7 +95,6 @@ class EmailConfirmationToken(models.Model):
 
     def __str__(self):
         return f"Token for {self.user.username}"
-
     @property
     def is_expired(self):
         from datetime import timedelta

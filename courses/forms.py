@@ -1,16 +1,7 @@
-"""
-Courses Forms
-Topics: ModelForms, Widgets, Validation, FileField
-"""
 from django import forms
 from .models import Course, Note, Category
 
-
 class CourseForm(forms.ModelForm):
-    """
-    Course Create/Update Form
-    Topics: ModelForms, Widgets, Validation
-    """
     class Meta:
         model = Course
         fields = ['title', 'description', 'category', 'thumbnail', 'status',
@@ -37,7 +28,6 @@ class CourseForm(forms.ModelForm):
 
 
 class NoteForm(forms.ModelForm):
-    """Note Upload Form - Topics: FileField, ModelForms"""
     class Meta:
         model = Note
         fields = ['title', 'description', 'file']
@@ -60,7 +50,6 @@ class NoteForm(forms.ModelForm):
 
 
 class CourseSearchForm(forms.Form):
-    """Search/Filter Form - Topics: request.GET, Query Parameters"""
     search = forms.CharField(required=False, widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'Search courses...'}
     ))

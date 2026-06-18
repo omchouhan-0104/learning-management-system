@@ -2,13 +2,11 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Course, Category, Enrollment, Note
 
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name']
-
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -41,13 +39,11 @@ class CourseAdmin(admin.ModelAdmin):
         self.message_user(request, 'Courses archived.')
     archive_courses.short_description = 'Archive selected courses'
 
-
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
     list_display = ['student', 'course', 'enrolled_at', 'is_active', 'progress']
     list_filter = ['is_active', 'completed', 'enrolled_at']
     search_fields = ['student__username', 'course__title']
-
 
 @admin.register(Note)
 class NoteAdmin(admin.ModelAdmin):

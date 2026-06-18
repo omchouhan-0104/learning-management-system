@@ -37,8 +37,6 @@ class OptionForm(forms.ModelForm):
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-
-# Inline formset: 4 options per question
 OptionFormSet = inlineformset_factory(
     Question, Option,
     form=OptionForm,

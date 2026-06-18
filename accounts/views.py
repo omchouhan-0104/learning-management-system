@@ -1,8 +1,3 @@
-"""
-Accounts Views
-Topics: FBV, CBV, Authentication, Sessions, Cookies,
-        LoginRequiredMixin, UserPassesTestMixin, Email Verification
-"""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -11,14 +6,11 @@ from django.contrib import messages
 from django.views.generic import ListView, UpdateView, DetailView
 from django.urls import reverse_lazy
 from django.db.models import Q
-
 from .models import User, EmailConfirmationToken
 from .forms import RegisterForm, LoginForm, ProfileUpdateForm, CustomPasswordChangeForm, UserAdminForm
 
-
 def is_admin_or_super(user):
     return user.is_staff or user.is_superuser
-
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -39,7 +31,6 @@ def register_view(request):
         else:
             messages.error(request, 'Please fix the errors below.')
     return render(request, 'accounts/register.html', {'form': form})
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -62,7 +53,6 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'accounts/login.html', {'form': form})
 
-
 @login_required
 def logout_view(request):
     if request.method == 'POST':
@@ -83,7 +73,6 @@ def profile_view(request):
             return redirect('accounts:profile')
     return render(request, 'accounts/profile.html', {'form': form})
 
-
 @login_required
 def change_password_view(request):
     form = CustomPasswordChangeForm(user=request.user)
@@ -96,12 +85,7 @@ def change_password_view(request):
             return redirect('accounts:profile')
     return render(request, 'accounts/change_password.html', {'form': form})
 
-
 def verify_email_view(request, token):
-    """
-    Email verification view.
-    Marks user as email-verified when they click the link.
-    """
     try:
         token_obj = EmailConfirmationToken.objects.get(token=token, is_used=False)
     except EmailConfirmationToken.DoesNotExist:
@@ -123,10 +107,8 @@ def verify_email_view(request, token):
         login(request, user)
     return redirect(user.get_dashboard_url())
 
-
 @login_required
 def resend_verification_email(request):
-    """Resend email verification link."""
     user = request.user
     if user.is_email_verified:
         messages.info(request, 'Your email is already verified.')
@@ -135,7 +117,6 @@ def resend_verification_email(request):
     if request.method == 'POST':
         from lms_project.email_service import send_confirm_email
         token_obj, _ = EmailConfirmationToken.objects.get_or_create(user=user)
-        # Reset token
         import uuid
         token_obj.token = uuid.uuid4()
         token_obj.is_used = False
@@ -143,9 +124,7 @@ def resend_verification_email(request):
         send_confirm_email(user, str(token_obj.token))
         messages.success(request, f'Verification email resent to {user.email}')
         return redirect('dashboard:index')
-
     return render(request, 'accounts/resend_verification.html')
-
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
@@ -184,7 +163,6 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['role_filter'] = self.request.GET.get('role', '')
         return context
 
-
 class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
@@ -192,7 +170,6 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         return self.request.user.is_staff or self.request.user.pk == self.kwargs['pk']
-
 
 class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = User
@@ -206,7 +183,6 @@ class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'User updated successfully!')
         return super().form_valid(form)
-
 
 @login_required
 @user_passes_test(is_admin_or_super)

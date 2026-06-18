@@ -1,7 +1,3 @@
-"""
-Custom Middleware
-Covers: Middleware, Request logging, Role tracking
-"""
 import logging
 import time
 from django.utils.deprecation import MiddlewareMixin
@@ -11,10 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class RequestLogMiddleware(MiddlewareMixin):
-    """
-    Logs every request: method, path, user, response time.
-    Topic: Custom Middleware
-    """
     def process_request(self, request):
         request._start_time = time.time()
 
@@ -33,10 +25,6 @@ class RequestLogMiddleware(MiddlewareMixin):
 
 
 class RoleMiddleware(MiddlewareMixin):
-    """
-    Attaches role info to request for easy access in views/templates.
-    Topic: Middleware, Role-based access
-    """
     def process_request(self, request):
         if request.user.is_authenticated:
             request.user_role = getattr(request.user, 'role', 'student')

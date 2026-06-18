@@ -1,7 +1,3 @@
-"""
-Quizzes Models
-Topics: ForeignKey, ManyToMany, ORM, Aggregation
-"""
 from django.db import models
 from django.conf import settings
 
